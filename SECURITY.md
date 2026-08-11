@@ -117,3 +117,19 @@ Contributors must keep the invariants above intact:
 
 These rules are enforced by the project rules in `AGENTS.md` and by the CI
 gates (`pnpm audit --prod --audit-level high` and the smoke test suite).
+
+## Known limitations
+
+Tracked in the issue tracker with the `security` label:
+
+- The management token is exported to child agent processes
+  (`HARNESS_AUTH_TOKEN`); a separate ingest-only credential is planned
+  ([#1](https://github.com/senoldogann/own-harness/issues/1)).
+- `harness policy pull` sends the distribution auth token before signature
+  verification when running from an untrusted workspace config
+  ([#2](https://github.com/senoldogann/own-harness/issues/2)).
+- The SQLite database is opened twice with a post-open identity check, and
+  WAL sidecar files are not opened with `O_NOFOLLOW`
+  ([#3](https://github.com/senoldogann/own-harness/issues/3)).
+- Third-party GitHub Actions are referenced by mutable major tags; pinning to
+  commit SHAs is planned ([#4](https://github.com/senoldogann/own-harness/issues/4)).
