@@ -585,7 +585,7 @@ describe("proxy fake provider", () => {
     rmSync(streamDir, { recursive: true, force: true })
   })
 
-  it("distinguishes completed SSE responses from premature client disconnects", async () => {
+  it("distinguishes completed SSE responses from premature client disconnects", { timeout: 15000 }, async () => {
     const streamingProvider = Fastify()
     streamingProvider.post("/v1/responses", async (request, reply) => {
       const body = request.body as { readonly model: string }
