@@ -68,12 +68,12 @@ export function bootstrap(cwd: string): BootstrapResult {
     16,
     process.env
   )
-  const distributionSignatureSecret = resolveConfiguredSecret(
-    config.distribution?.signatureSecretEnv,
-    "distribution.signatureSecretEnv",
-    8,
-    process.env
-  )
+    const distributionSignatureSecret = resolveConfiguredSecret(
+      config.distribution?.signatureSecretEnv,
+      "distribution.signatureSecretEnv",
+      32,
+      process.env
+    )
   return {
     config,
     policy,

@@ -72,7 +72,7 @@ program
   .description("Start the local dashboard")
   .option("--host <host>", "dashboard host", "127.0.0.1")
   .option("--port <port>", "dashboard port", "4300")
-  .option("--debug", "enable raw command inspection with a debug token")
+  .option("--debug", "enable raw command inspection in addition to the management token")
   .option("--remote-url <url>", "read-only dashboard source URL")
   .option("--token <token>", "bearer token for the read-only dashboard source")
   .action((options: { host: string; port: string; debug: boolean; remoteUrl?: string; token?: string }) => {

@@ -743,7 +743,7 @@ function forwardHeaders(
       if (isPlaceholderApiKey(value)) {
         continue
       }
-      if (name.toLowerCase() === "authorization" && proxyAuthToken !== undefined && value === `Bearer ${proxyAuthToken}`) {
+      if (proxyAuthToken !== undefined && headerCarriesSecret(value, proxyAuthToken)) {
         continue
       }
       result[name] = value
@@ -753,6 +753,15 @@ function forwardHeaders(
     result["content-type"] = "application/json"
   }
   return result
+}
+
+function headerCarriesSecret(value: string, secret: string): boolean {
+  const normalizedValue = value.trim().replace(/\s+/g, " ")
+  const normalizedSecret = secret.trim().replace(/\s+/g, " ")
+  if (normalizedValue.toLowerCase() === `bearer ${normalizedSecret}`.toLowerCase()) {
+    return true
+  }
+  return normalizedValue === normalizedSecret
 }
 
 async function requestUpstreamOnce(

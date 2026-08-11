@@ -21,7 +21,16 @@ export interface RateLimitResult {
 
 export function requestPathname(url: string): string {
   const queryStart = url.indexOf("?")
-  return queryStart === -1 ? url : url.slice(0, queryStart)
+  const withoutQuery = queryStart === -1 ? url : url.slice(0, queryStart)
+  if (withoutQuery.startsWith("http://") || withoutQuery.startsWith("https://")) {
+    // Absolute-form request targets are rejected before dispatch by the auth hook.
+    return "/__absolute_form_request_target__"
+  }
+  try {
+    return decodeURIComponent(withoutQuery)
+  } catch {
+    return withoutQuery
+  }
 }
 
 export function rateLimitRouteClass(pathname: string): RateLimitRouteClass {

@@ -2448,6 +2448,23 @@ describe("proxy fake provider", () => {
       body: JSON.stringify({ model: "gpt-5" })
     })
     expect(provider.status).toBe(200)
+    const absoluteFormStatus = await new Promise<number>((resolve, reject) => {
+      const request = httpRequest({
+        host: "127.0.0.1",
+        port: proxyAddress(proxy),
+        path: `${base}/api/v1/ingest`,
+        method: "POST",
+        headers: { "content-type": "application/json" }
+      }, (response) => {
+        response.resume()
+        response.once("end", () => resolve(response.statusCode ?? 0))
+      })
+      request.once("error", reject)
+      request.end(JSON.stringify({ tool: "Bash", command: "git status" }))
+    })
+    expect(absoluteFormStatus).toBe(400)
+    const encodedPath = await fetch(`${base}/%61pi/v1/requests`)
+    expect(encodedPath.status).toBe(401)
     await proxy.stop()
   })
 

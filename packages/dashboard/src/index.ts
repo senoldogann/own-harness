@@ -430,7 +430,7 @@ function toolsView() {
       return row;
     })));
   } else if (state.rawStatus === "locked") {
-    section.append(h("div", "empty", "Debug token rejected. Restart with harness dashboard --debug and open the token URL."));
+    section.append(h("div", "empty", "Debug mode is disabled. Start the dashboard with --debug to inspect raw commands."));
   } else if (state.rawStatus === "disabled" && DEBUG_ENABLED) {
     section.append(h("div", "empty", "Debug mode is on, but raw commands could not be loaded."));
   } else if (state.rawStatus === "disabled") {

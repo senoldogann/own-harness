@@ -12,6 +12,8 @@ import { inspectSseChunk } from "../sse-metrics.js"
 import type { ProxyOptions } from "./proxy-server.js"
 import { recordCompletedRequestWithTelemetry } from "./telemetry-record.js"
 
+const MAX_REPORTED_TOKENS = 100_000_000
+
 export async function streamResponse(
   reply: FastifyReply,
   response: Awaited<ReturnType<typeof undiciRequest>>,
@@ -74,9 +76,9 @@ export async function streamResponse(
       )
       outputHasher.update(text, "utf8")
       const metrics = inspectSseChunk(complete)
-      tokensIn = Math.max(tokensIn, metrics.tokensIn)
-      tokensOut = Math.max(tokensOut, metrics.tokensOut)
-      cacheReadTokensIn = Math.max(cacheReadTokensIn, metrics.cacheReadTokensIn)
+      tokensIn = Math.min(Math.max(tokensIn, metrics.tokensIn), MAX_REPORTED_TOKENS)
+      tokensOut = Math.min(Math.max(tokensOut, metrics.tokensOut), MAX_REPORTED_TOKENS)
+      cacheReadTokensIn = Math.min(Math.max(cacheReadTokensIn, metrics.cacheReadTokensIn), MAX_REPORTED_TOKENS)
       successfulCompletion ||= metrics.successfulCompletion
       if (!reply.raw.write(text)) {
         await awaitDrainOrClosed(reply)
@@ -93,9 +95,9 @@ export async function streamResponse(
       )
       outputHasher.update(text, "utf8")
       const metrics = inspectSseChunk(pending)
-      tokensIn = Math.max(tokensIn, metrics.tokensIn)
-      tokensOut = Math.max(tokensOut, metrics.tokensOut)
-      cacheReadTokensIn = Math.max(cacheReadTokensIn, metrics.cacheReadTokensIn)
+      tokensIn = Math.min(Math.max(tokensIn, metrics.tokensIn), MAX_REPORTED_TOKENS)
+      tokensOut = Math.min(Math.max(tokensOut, metrics.tokensOut), MAX_REPORTED_TOKENS)
+      cacheReadTokensIn = Math.min(Math.max(cacheReadTokensIn, metrics.cacheReadTokensIn), MAX_REPORTED_TOKENS)
       successfulCompletion ||= metrics.successfulCompletion
       if (!reply.raw.write(text)) {
         await awaitDrainOrClosed(reply)

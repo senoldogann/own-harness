@@ -40,6 +40,13 @@ importers:
         version: 3.3.1
 
   packages/cli:
+    dependencies:
+      commander:
+        specifier: 12.1.0
+        version: 12.1.0
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
     devDependencies:
       '@own-harness/contracts':
         specifier: workspace:*
@@ -56,9 +63,6 @@ importers:
       '@own-harness/proxy':
         specifier: workspace:*
         version: link:../proxy
-      commander:
-        specifier: 12.1.0
-        version: 12.1.0
       tsup:
         specifier: 8.3.5
         version: 8.3.5(postcss@8.5.26)(tsx@4.19.2)(typescript@5.7.2)(yaml@2.9.0)
@@ -68,9 +72,6 @@ importers:
       vitest:
         specifier: 2.1.8
         version: 2.1.8(@types/node@22.10.2)
-      yaml:
-        specifier: 2.9.0
-        version: 2.9.0
 
   packages/contracts:
     dependencies:

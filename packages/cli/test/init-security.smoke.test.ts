@@ -60,7 +60,7 @@ describe("project initialization security", () => {
     const serverEnvironmentVariable = "OWN_HARNESS_TEST_BOOTSTRAP_SERVER_TOKEN"
     const distributionEnvironmentVariable = "OWN_HARNESS_TEST_BOOTSTRAP_SIGNATURE_SECRET"
     const serverSecret = "server-secret-value-123456"
-    const distributionSecret = "distribution-secret-value"
+    const distributionSecret = "distribution-secret-value-0123456789abcdef0123456789"
     process.env.HARNESS_HOME = root
     try {
       initProject(root)

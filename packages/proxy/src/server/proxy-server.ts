@@ -76,6 +76,10 @@ export function createProxy(options: ProxyOptions): HarnessProxy {
   let rateWindowRequestCount = 0
   const requireAuth = options.authToken !== undefined
   app.addHook("onRequest", async (request, reply) => {
+    if (isAbsoluteFormRequestTarget(request.url)) {
+      reply.code(400).send({ error: "Absolute-form request targets are not allowed" })
+      return
+    }
     const pathname = requestPathname(request.url)
     const routeClass = rateLimitRouteClass(pathname)
     const expectedToken = routeClass === "management"
@@ -223,4 +227,8 @@ function validatePositiveInteger(value: number, field: string): void {
   if (!Number.isInteger(value) || value <= 0) {
     throw new Error(`${field} must be a positive integer: ${value}`)
   }
+}
+
+function isAbsoluteFormRequestTarget(url: string): boolean {
+  return url.startsWith("http://") || url.startsWith("https://")
 }

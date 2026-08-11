@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto"
+import type { Stats } from "node:fs"
 import {
   closeSync,
   constants,
@@ -34,6 +35,7 @@ export function preparePrivateDatabasePath(dbPath: string): string {
   const resolvedPath = resolve(dbPath)
   const trustedRoot = selectTrustedRoot(resolvedPath)
   const realRoot = realpathSync(trustedRoot)
+  assertPrivateDirectoryOwnership(realRoot, lstatSync(realRoot))
   const relativePath = requireContainedRelativePath(trustedRoot, resolvedPath)
   const relativeDirectory = dirname(relativePath)
   const realDirectory = ensureDirectories(realRoot, relativeDirectory, 0o700)
@@ -270,6 +272,7 @@ function ensureDirectories(realRoot: string, relativeDirectory: string, mode: nu
       if (metadata.isSymbolicLink() || !metadata.isDirectory()) {
         throw new StoreError(`Unsafe directory component: ${nextPath}`)
       }
+      assertPrivateDirectoryOwnership(nextPath, metadata)
     } catch (error) {
       if (!isFileSystemError(error, "ENOENT")) {
         throw error
@@ -287,6 +290,17 @@ function ensureDirectories(realRoot: string, relativeDirectory: string, mode: nu
     currentPath = nextPath
   }
   return currentPath
+}
+
+function assertPrivateDirectoryOwnership(directoryPath: string, metadata: Stats): void {
+  if (process.getuid !== undefined && metadata.uid !== process.getuid()) {
+    throw new StoreError(`State directory is not owned by the current user: ${directoryPath}`)
+  }
+  if ((Number(metadata.mode) & 0o022) !== 0) {
+    throw new StoreError(
+      `State directory grants group/other write or execute access; expected private mode: ${directoryPath}`
+    )
+  }
 }
 
 function requireExistingDirectory(realRoot: string, relativeDirectory: string): string {

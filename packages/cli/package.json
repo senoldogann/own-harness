@@ -42,6 +42,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "dependencies": {
+    "commander": "12.1.0",
+    "yaml": "2.9.0"
+  },
   "files": [
     "dist",
     "assets"
@@ -52,8 +56,6 @@
     "@own-harness/dashboard": "workspace:*",
     "@own-harness/desktop": "workspace:*",
     "@own-harness/proxy": "workspace:*",
-    "commander": "12.1.0",
-    "yaml": "2.9.0",
     "tsup": "8.3.5",
     "typescript": "5.7.2",
     "vitest": "2.1.8"

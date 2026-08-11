@@ -41,7 +41,7 @@ describe("policy pull", () => {
     const authTokenEnvironmentVariable = "OWN_HARNESS_TEST_SERVER_AUTH_TOKEN"
     const signatureSecretEnvironmentVariable = "OWN_HARNESS_TEST_DISTRIBUTION_SIGNATURE_SECRET"
     process.env[authTokenEnvironmentVariable] = authToken
-    process.env[signatureSecretEnvironmentVariable] = "policy-secret-12345678"
+    process.env[signatureSecretEnvironmentVariable] = "policy-secret-1234567890abcdef1234567890abcdef"
     const proxy = createProxy({
       host: "127.0.0.1",
       port: 0,
@@ -55,7 +55,7 @@ describe("policy pull", () => {
       agent: "codex",
       authToken,
       managementToken: authToken,
-      policySignatureSecret: "policy-secret-12345678"
+      policySignatureSecret: "policy-secret-1234567890abcdef1234567890abcdef"
     })
     try {
       const proxyUrl = await proxy.start()
