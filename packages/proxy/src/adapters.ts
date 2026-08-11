@@ -206,7 +206,11 @@ function requireOpenCodeModel(args: readonly string[]): string {
       return modelIdFromValue(arg.slice("--model=".length))
     }
   }
-  throw new Error("OpenCode requires --model own-harness/<model>")
+  throw new Error(
+    "OpenCode requires --model own-harness/<model>, for example " +
+    "`harness run opencode --model own-harness/deepseek-v4-flash`. " +
+    "The model name after own-harness/ is forwarded to your configured OpenAI-compatible provider."
+  )
 }
 
 function modelIdFromValue(value: string): string {
