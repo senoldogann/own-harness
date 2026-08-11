@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 (2026-08-11)
+
+- Add an npm-facing README to the published package so the registry page is
+  no longer blank.
+
 ## 1.0.0 (2026-08-11)
 
 First stable open-source release.
