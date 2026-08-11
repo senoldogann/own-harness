@@ -21,7 +21,7 @@ const program = new Command()
 program
   .name("harness")
   .description("Local control plane for AI coding agents")
-  .version("0.1.0")
+  .version("1.0.0")
   .enablePositionalOptions()
 
 const cwd = process.cwd()
