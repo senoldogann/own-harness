@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.0.0 (2026-08-11)
+
+First stable open-source release.
+
+### Security hardening
+
+- Fixed a proxy authentication bypass where absolute-form and percent-encoded
+  request targets bypassed the management-token gate.
+- Added a client-disconnect guard for SSE streaming so upstream bodies are not
+  read after the client closes.
+- Expanded secret redaction to GitLab, GitHub OAuth/SSO, Hugging Face, and AWS
+  temporary credential formats.
+- Bounded reported token usage from upstream SSE events.
+- Raised the policy-distribution HMAC secret minimum to 32 characters and
+  hardened header forwarding so local tokens cannot leak upstream.
+- `harness verify:install` now validates artifact checksums and file modes.
+- CI pins third-party actions to commit SHAs and runs with least-privilege
+  permissions.
+
+### Open source
+
+- Published under the MIT license with `SECURITY.md`, `CONTRIBUTING.md`, and a
+  code of conduct.
+- `@own-harness/cli` is published to the npm registry.
+
 ## 0.1.0 (2026-08-10)
 
 Initial release candidate.
