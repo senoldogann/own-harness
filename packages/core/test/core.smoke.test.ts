@@ -29,6 +29,16 @@ import {
   verifyPolicyBundle
 } from "../src/index.js"
 
+function commandOnPath(command: string): boolean {
+  const pathValue = process.env.PATH ?? ""
+  for (const directory of pathValue.split(":")) {
+    if (directory.length > 0 && existsSync(join(directory, command))) {
+      return true
+    }
+  }
+  return false
+}
+
 describe("core smoke", () => {
   it("accepts only environment references for configured server and distribution secrets", () => {
     const config = {
@@ -1378,6 +1388,9 @@ describe("core smoke", () => {
   })
 
   it("rewrites shell commands with rtk when available", async () => {
+    if (commandOnPath("rtk") === false) {
+      return
+    }
     const result = await rewriteCommandWithRtk("git status")
     expect(result.usedRtk).toBe(true)
     expect(result.rewritten.length).toBeGreaterThan(0)

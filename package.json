@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "description": "Local control plane for AI coding agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/senoldogann/own-harness.git"
+  },
+  "bugs": {
+    "url": "https://github.com/senoldogann/own-harness/issues"
+  },
+  "homepage": "https://github.com/senoldogann/own-harness#readme",
   "packageManager": "pnpm@9.15.4",
   "engines": {
     "node": ">=22.13.0"

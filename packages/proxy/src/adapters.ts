@@ -30,9 +30,7 @@ export function createClaudeAdapter(baseUrl: string): AgentAdapter {
   const hookCommand = (cwd: string) =>
     `bash ${quotePosixShellArgument(`${cwd}/.harness/hooks/claude-hooks.sh`)}`
   const settingsJson = (cwd: string) => JSON.stringify({
-    env: {
-      ANTHROPIC_BASE_URL: baseUrl
-    },
+    env: claudeSettingsEnv(baseUrl),
     hooks: {
       SessionStart: [{ matcher: "*", hooks: [{ type: "command", command: hookCommand(cwd) }] }],
       PreToolUse: [{ matcher: "*", hooks: [{ type: "command", command: hookCommand(cwd) }] }],
@@ -74,6 +72,45 @@ function quotePosixShellArgument(value: string): string {
     throw new Error("Claude hook path must not contain a NUL character")
   }
   return `'${value.replace(/'/g, `'"'"'`)}'`
+}
+
+interface ClaudeSettingsEnv {
+  readonly ANTHROPIC_BASE_URL: string
+  readonly ANTHROPIC_AUTH_TOKEN?: string
+  readonly ANTHROPIC_MODEL?: string
+  readonly ANTHROPIC_DEFAULT_OPUS_MODEL?: string
+  readonly ANTHROPIC_DEFAULT_SONNET_MODEL?: string
+  readonly ANTHROPIC_DEFAULT_HAIKU_MODEL?: string
+  readonly CLAUDE_CODE_SUBAGENT_MODEL?: string
+  readonly CLAUDE_CODE_EFFORT_LEVEL?: string
+}
+
+const CLAUDE_SETTINGS_ENV_KEYS = [
+  "ANTHROPIC_AUTH_TOKEN",
+  "ANTHROPIC_MODEL",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL",
+  "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+  "CLAUDE_CODE_SUBAGENT_MODEL",
+  "CLAUDE_CODE_EFFORT_LEVEL"
+] as const
+
+function claudeSettingsEnv(baseUrl: string): ClaudeSettingsEnv {
+  return {
+    ANTHROPIC_BASE_URL: baseUrl,
+    ...pickEnvValues(CLAUDE_SETTINGS_ENV_KEYS)
+  }
+}
+
+function pickEnvValues<T extends string>(keys: readonly T[]): Partial<Record<T, string>> {
+  const picked: Partial<Record<T, string>> = {}
+  for (const key of keys) {
+    const value = process.env[key]
+    if (value !== undefined) {
+      picked[key] = value
+    }
+  }
+  return picked
 }
 
 export function createCodexAdapter(baseUrl: string): AgentAdapter {

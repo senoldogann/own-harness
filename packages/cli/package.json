@@ -4,6 +4,26 @@
   "private": false,
   "type": "module",
   "description": "Local control plane for AI coding agents",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/senoldogann/own-harness.git"
+  },
+  "bugs": {
+    "url": "https://github.com/senoldogann/own-harness/issues"
+  },
+  "homepage": "https://github.com/senoldogann/own-harness#readme",
+  "keywords": [
+    "ai",
+    "cli",
+    "coding-agent",
+    "llm",
+    "proxy",
+    "policy"
+  ],
+  "author": {
+    "name": "Senol Dogan",
+    "url": "https://github.com/senoldogann"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=22.13.0"

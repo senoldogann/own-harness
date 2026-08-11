@@ -85,6 +85,48 @@ describe("agent adapters", () => {
     rmSync(root, { recursive: true, force: true })
   })
 
+  it("passes the auth token and model env through Claude settings", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "own-harness-claude-settings-"))
+    writeFakeBinary(dir, "claude", "claude-settings-ok")
+    setEnv("ANTHROPIC_AUTH_TOKEN", "smoke-test-token")
+    setEnv("ANTHROPIC_MODEL", "smoke-test-model")
+    setEnv("ANTHROPIC_DEFAULT_SONNET_MODEL", "smoke-test-sonnet")
+    setEnv("CLAUDE_CODE_SUBAGENT_MODEL", "smoke-test-subagent")
+    setEnv("CLAUDE_CODE_EFFORT_LEVEL", "high")
+    const adapter = createClaudeAdapter("http://127.0.0.1:4103")
+    const command = adapter.buildLaunchCommand({
+      args: ["--print", "hello"],
+      cwd: dir
+    })
+    const settings = settingsFromLaunchCommand(command)
+    expect(settings.env.ANTHROPIC_BASE_URL).toBe("http://127.0.0.1:4103")
+    for (const key of CLAUDE_SETTINGS_ENV_KEYS) {
+      const value = process.env[key]
+      if (value === undefined) {
+        expect(settings.env[key]).toBeUndefined()
+      } else {
+        expect(settings.env[key]).toBe(value)
+      }
+    }
+    setEnv("PATH", `${dir}:${process.env.PATH ?? ""}`)
+    const child = adapter.launch({
+      args: ["--print", "hello"],
+      cwd: dir,
+      sessionId: "session-claude-settings",
+      projectHash: "project-claude-settings"
+    })
+    const code = await waitExit(child)
+    expect(code).toBe(0)
+    const launchSettings = settingsFromArgvFile(join(dir, "claude.argv"))
+    expect(launchSettings.env.ANTHROPIC_AUTH_TOKEN).toBe("smoke-test-token")
+    expect(launchSettings.env.CLAUDE_CODE_EFFORT_LEVEL).toBe("high")
+    const envFile = readFileSync(join(dir, "claude.env"), "utf8")
+    expect(envFile).toContain("ANTHROPIC_AUTH_TOKEN=smoke-test-token")
+    expect(envFile).toContain("ANTHROPIC_MODEL=smoke-test-model")
+    expect(envFile).toContain("CLAUDE_CODE_EFFORT_LEVEL=high")
+    rmSync(dir, { recursive: true, force: true })
+  })
+
   it("launches Codex with custom provider base URL and isolated CODEX_HOME", async () => {
     const dir = mkdtempSync(join(tmpdir(), "own-harness-codex-adapter-"))
     writeFakeBinary(dir, "codex", "codex-ok")
@@ -192,6 +234,7 @@ describe("agent adapters", () => {
 })
 
 interface ClaudeHookSettings {
+  readonly env: Record<string, string>
   readonly hooks: Record<string, Array<{
     readonly hooks: Array<{ readonly command: string }>
   }>>
@@ -206,16 +249,40 @@ function settingsFromLaunchCommand(command: string): ClaudeHookSettings {
   return JSON.parse(command.slice(markerIndex + marker.length)) as ClaudeHookSettings
 }
 
+function settingsFromArgvFile(argvPath: string): ClaudeHookSettings {
+  const args = readFileSync(argvPath, "utf8").split("\n")
+  const markerIndex = args.indexOf("--settings")
+  if (markerIndex === -1) {
+    throw new Error("Claude launch args do not contain --settings")
+  }
+  const settingsJson = args[markerIndex + 1]
+  if (settingsJson === undefined) {
+    throw new Error("Claude launch args are missing the settings JSON")
+  }
+  return JSON.parse(settingsJson) as ClaudeHookSettings
+}
+
 function writeFakeBinary(dir: string, name: string, marker: string): void {
   const path = join(dir, name)
   const content = `#!/usr/bin/env bash
 env | sort > "${dir}/${name}.env"
+printf '%s\\n' "$@" > "${dir}/${name}.argv"
 echo "${marker}"
 exit 0
 `
   writeFileSync(path, content, { encoding: "utf8", mode: 0o755 })
   chmodSync(path, 0o755)
 }
+
+const CLAUDE_SETTINGS_ENV_KEYS = [
+  "ANTHROPIC_AUTH_TOKEN",
+  "ANTHROPIC_MODEL",
+  "ANTHROPIC_DEFAULT_OPUS_MODEL",
+  "ANTHROPIC_DEFAULT_SONNET_MODEL",
+  "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+  "CLAUDE_CODE_SUBAGENT_MODEL",
+  "CLAUDE_CODE_EFFORT_LEVEL"
+] as const
 
 function setEnv(key: string, value: string): void {
   previousEnv.set(key, process.env[key])
