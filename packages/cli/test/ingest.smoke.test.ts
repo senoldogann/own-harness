@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mkdtempSync, rmSync } from "node:fs"
+import { existsSync, mkdtempSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { HarnessStore } from "@own-harness/core"
@@ -9,6 +9,9 @@ import { writeTextFile } from "../src/fs-utils.js"
 
 describe("cli ingest", () => {
   it("records a tool call with rtk rewrite and session env", async () => {
+    if (commandOnPath("rtk") === false) {
+      return
+    }
     const dir = mkdtempSync(join(tmpdir(), "own-harness-cli-"))
     initProject(dir)
     writeTextFile(join(dir, "harness.config.yaml"), configWithRtkEnabled(dir))
@@ -140,6 +143,16 @@ rules:
     rmSync(dir, { recursive: true, force: true })
   })
 })
+
+function commandOnPath(command: string): boolean {
+  const pathValue = process.env.PATH ?? ""
+  for (const directory of pathValue.split(":")) {
+    if (directory.length > 0 && existsSync(join(directory, command))) {
+      return true
+    }
+  }
+  return false
+}
 
 function configWithLocalStore(dir: string): string {
   process.env.HARNESS_HOME = dir
