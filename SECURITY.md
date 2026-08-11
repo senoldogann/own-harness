@@ -133,3 +133,5 @@ Tracked in the issue tracker with the `security` label:
   ([#3](https://github.com/senoldogann/own-harness/issues/3)).
 - Third-party GitHub Actions are referenced by mutable major tags; pinning to
   commit SHAs is planned ([#4](https://github.com/senoldogann/own-harness/issues/4)).
+- State directories accept world-writable roots without ownership or mode
+  validation ([#5](https://github.com/senoldogann/own-harness/issues/5)).
