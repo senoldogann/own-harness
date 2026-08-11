@@ -1,0 +1,59 @@
+version: 1
+proxy:
+  host: "127.0.0.1"
+  port: 4103
+store:
+  home: "~/.own-harness"
+  retentionDays: 90
+telemetry:
+  enabled: false
+  optInFile: "~/.own-harness/telemetry.json"
+server:
+  host: "127.0.0.1"
+rtk:
+  enabled: false
+pricing:
+  defaultCurrency: "USD"
+  models:
+    - provider: "anthropic"
+      model: "claude-*"
+      inputPerMillion: 3.0
+      outputPerMillion: 15.0
+    - provider: "openai"
+      model: "gpt-*"
+      inputPerMillion: 2.5
+      outputPerMillion: 10.0
+    - provider: "anthropic"
+      model: "*deepseek-v4-pro*"
+      inputPerMillion: 0.435
+      cacheReadInputPerMillion: 0.0435
+      outputPerMillion: 0.87
+    - provider: "anthropic"
+      model: "*deepseek-v4-flash*"
+      inputPerMillion: 0.14
+      cacheReadInputPerMillion: 0.014
+      outputPerMillion: 0.28
+    - provider: "openai"
+      model: "*deepseek-v4-pro*"
+      inputPerMillion: 0.435
+      cacheReadInputPerMillion: 0.0435
+      outputPerMillion: 0.87
+    - provider: "openai"
+      model: "*deepseek-v4-flash*"
+      inputPerMillion: 0.14
+      cacheReadInputPerMillion: 0.014
+      outputPerMillion: 0.28
+    - provider: "openai-compatible"
+      model: "*deepseek-v4-pro*"
+      inputPerMillion: 0.435
+      cacheReadInputPerMillion: 0.0435
+      outputPerMillion: 0.87
+    - provider: "openai-compatible"
+      model: "*deepseek-v4-flash*"
+      inputPerMillion: 0.14
+      cacheReadInputPerMillion: 0.014
+      outputPerMillion: 0.28
+    - provider: "openai-compatible"
+      model: "*"
+      inputPerMillion: 2.5
+      outputPerMillion: 10.0

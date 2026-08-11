@@ -1,0 +1,50 @@
+{
+  "name": "@own-harness/cli",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Local control plane for AI coding agents",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "bin": {
+    "harness": "./dist/index.cjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "assets"
+  ],
+  "devDependencies": {
+    "@own-harness/contracts": "workspace:*",
+    "@own-harness/core": "workspace:*",
+    "@own-harness/dashboard": "workspace:*",
+    "@own-harness/desktop": "workspace:*",
+    "@own-harness/proxy": "workspace:*",
+    "commander": "12.1.0",
+    "yaml": "2.9.0",
+    "tsup": "8.3.5",
+    "typescript": "5.7.2",
+    "vitest": "2.1.8"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepack": "pnpm build",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint src test",
+    "coverage": "vitest run --coverage --passWithNoTests --coverage.include=\"src/**/*.ts\" --coverage.thresholds.lines=35 --coverage.thresholds.functions=40 --coverage.thresholds.branches=55 --coverage.thresholds.statements=35",
+    "dev": "tsx src/index.ts"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "own-harness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local control plane for AI coding agents",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "coverage": "pnpm -r coverage",
+    "pack:cli": "cd packages/cli && pnpm pack --pack-destination ../../dist-release",
+    "pack:ides": "node scripts/pack-ides.mjs",
+    "pack:release": "pnpm build && pnpm pack:cli && pnpm pack:ides && node scripts/write-release-checksums.mjs",
+    "install:global": "npm install -g ./dist-release/own-harness-cli-*.tgz",
+    "uninstall:global": "npm uninstall -g @own-harness/cli",
+    "verify:install": "node scripts/verify-install.mjs",
+    "dev:cli": "pnpm --filter @own-harness/cli dev",
+    "dev:proxy": "pnpm --filter @own-harness/proxy dev"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "22.10.2",
+    "@vitest/coverage-v8": "2.1.8",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.8.1",
+    "tsx": "4.19.2",
+    "typescript": "5.7.2",
+    "typescript-eslint": "^8.67.0",
+    "yazl": "^3.3.1"
+  }
+}

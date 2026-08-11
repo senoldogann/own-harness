@@ -1,0 +1,32 @@
+{
+  "name": "own-harness-cursor",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "own-harness",
+  "license": "MIT",
+  "description": "Cursor extension host for own-harness tool ingest",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "main": "./dist/extension.js",
+  "files": [
+    "dist/extension.js",
+    "LICENSE"
+  ],
+  "activationEvents": [
+    "onCommand:own-harness.reportTool",
+    "onCommand:own-harness.interceptionStatus"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "own-harness.reportTool",
+        "title": "Report tool call to own-harness"
+      },
+      {
+        "command": "own-harness.interceptionStatus",
+        "title": "Show own-harness interception status"
+      }
+    ]
+  }
+}

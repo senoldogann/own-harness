@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.turbo/
+coverage/
+*.log
+.env
+.DS_Store
+.harness/
+dist-release/
+**/node_modules/
+**/dist/
+**/coverage/

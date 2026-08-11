@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@own-harness/desktop": ["./src/index.ts"]
+    },
+    "types": ["node", "vscode"]
+  },
+  "include": ["extensions/*/src"]
+}
