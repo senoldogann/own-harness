@@ -632,17 +632,19 @@ describe("proxy fake provider", () => {
     })
     await proxy.start()
     const cancelAfterFirstChunk = async (model: string): Promise<string> => {
+      const controller = new AbortController()
       const response = await fetch(`http://127.0.0.1:${proxyAddress(proxy)}/v1/responses`, {
         method: "POST",
         headers: { "content-type": "application/json", accept: "text/event-stream" },
-        body: JSON.stringify({ model, stream: true })
+        body: JSON.stringify({ model, stream: true }),
+        signal: controller.signal
       })
       const reader = response.body?.getReader()
       if (reader === undefined) {
         throw new Error(`streaming response body is unavailable for model ${model}`)
       }
       const firstChunk = await reader.read()
-      await reader.cancel()
+      controller.abort()
       return new TextDecoder().decode(firstChunk.value)
     }
     expect(await cancelAfterFirstChunk("gpt-completed")).toContain("response.completed")
