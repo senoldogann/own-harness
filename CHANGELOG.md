@@ -23,7 +23,7 @@ First stable open-source release.
 
 - Published under the MIT license with `SECURITY.md`, `CONTRIBUTING.md`, and a
   code of conduct.
-- `@own-harness/cli` is published to the npm registry.
+- `own-harness` is published to the npm registry.
 
 ## 0.1.0 (2026-08-10)
 

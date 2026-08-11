@@ -1,5 +1,5 @@
 {
-  "name": "@own-harness/cli",
+  "name": "own-harness",
   "version": "1.0.0",
   "private": false,
   "type": "module",
@@ -38,9 +38,6 @@
       "types": "./dist/index.d.cts",
       "default": "./dist/index.cjs"
     }
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "dependencies": {
     "commander": "12.1.0",

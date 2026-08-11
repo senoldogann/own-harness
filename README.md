@@ -187,7 +187,7 @@ pnpm pack:cli
 pnpm install:global
 ```
 
-`pnpm install:global` replaces the existing global `@own-harness/cli` install. Local harness data under `~/.own-harness` and project `.harness/` files are preserved.
+`pnpm install:global` replaces the existing global `own-harness` install. Local harness data under `~/.own-harness` and project `.harness/` files are preserved.
 
 ## Uninstall
 

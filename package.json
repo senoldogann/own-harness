@@ -1,5 +1,5 @@
 {
-  "name": "own-harness",
+  "name": "own-harness-root",
   "version": "1.0.0",
   "private": true,
   "description": "Local control plane for AI coding agents",
@@ -25,9 +25,9 @@
     "pack:ides": "node scripts/pack-ides.mjs",
     "pack:release": "pnpm build && pnpm pack:cli && pnpm pack:ides && node scripts/write-release-checksums.mjs",
     "install:global": "npm install -g ./dist-release/own-harness-cli-*.tgz",
-    "uninstall:global": "npm uninstall -g @own-harness/cli",
+    "uninstall:global": "npm uninstall -g own-harness",
     "verify:install": "node scripts/verify-install.mjs",
-    "dev:cli": "pnpm --filter @own-harness/cli dev",
+    "dev:cli": "pnpm --filter own-harness dev",
     "dev:proxy": "pnpm --filter @own-harness/proxy dev"
   },
   "devDependencies": {
