@@ -158,7 +158,11 @@ function loadOrCreateLocalAuthToken(harnessHome: string): string {
 export function initProject(cwd: string): void {
   const configPath = resolve(cwd, "harness.config.yaml")
   if (existsSync(configPath)) {
-    throw new Error("harness.config.yaml already exists")
+    throw new Error(
+      `harness.config.yaml already exists in ${cwd}. ` +
+      "This project is already initialized; run `harness init` in a fresh directory " +
+      "or use the existing config with `harness run <agent>` / `harness dashboard`."
+    )
   }
   const policyPath = resolve(cwd, ".harness", "policies", "default.yaml")
   const hookPath = resolve(cwd, ".harness", "hooks", "claude-hooks.sh")
