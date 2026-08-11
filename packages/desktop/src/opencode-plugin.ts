@@ -186,7 +186,7 @@ async function ingestFromOpenCode(options: OpenCodeIngestOptions): Promise<void>
   }
   const baseUrl = process.env.HARNESS_BASE_URL ?? "http://127.0.0.1:4103"
   const headers: Record<string, string> = { "content-type": "application/json" }
-  const authToken = process.env.HARNESS_AUTH_TOKEN
+  const authToken = process.env.HARNESS_INGEST_TOKEN ?? process.env.HARNESS_AUTH_TOKEN
   if (authToken !== undefined && authToken.length > 0) {
     headers.authorization = `Bearer ${authToken}`
   }
@@ -304,7 +304,7 @@ async function postIngest(input, args, hookEvent, exitCode, durationMs) {
   if (command.length === 0) return
   const baseUrl = process.env.HARNESS_BASE_URL ?? "http://127.0.0.1:4103"
   const headers = { "content-type": "application/json" }
-  const authToken = process.env.HARNESS_AUTH_TOKEN
+  const authToken = process.env.HARNESS_INGEST_TOKEN ?? process.env.HARNESS_AUTH_TOKEN
   if (typeof authToken === "string" && authToken.length > 0) headers.authorization = \`Bearer \${authToken}\`
   const normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl
   const response = await fetch(\`\${normalizedBaseUrl}/api/v1/ingest\`, {

@@ -1,4 +1,4 @@
-import { closeSync, fchmodSync } from "node:fs"
+import { closeSync, fchmodSync, lstatSync } from "node:fs"
 import { createRequire } from "node:module"
 import { resolve } from "node:path"
 import {
@@ -11,6 +11,7 @@ import {
   openRegularFileGuard,
   preparePrivateDatabasePath
 } from "../safe-files.js"
+import { StoreError } from "../errors.js"
 
 const require = createRequire(resolve(process.cwd(), "__own_harness_runtime__.cjs"))
 const { DatabaseSync } = require("node:sqlite") as typeof import("node:sqlite")
@@ -43,8 +44,25 @@ export function openDatabase(dbPath: string, keyStoreOverride?: EncryptionKeySto
     db.exec("PRAGMA journal_mode = WAL")
     db.exec("PRAGMA foreign_keys = ON")
     db.exec("PRAGMA busy_timeout = 5000")
+    assertNoSymlinkSidecars(preparedPath)
+    assertOpenFileGuardIdentity(databaseGuard, "Database")
     return { db, cacheEncryptionKey, legacyEncryptionKey, legacyKeyPath }
   } finally {
     closeSync(databaseGuard.descriptor)
+  }
+}
+
+function assertNoSymlinkSidecars(dbPath: string): void {
+  for (const sidecarPath of [`${dbPath}-wal`, `${dbPath}-shm`]) {
+    try {
+      const metadata = lstatSync(sidecarPath)
+      if (metadata.isSymbolicLink()) {
+        throw new StoreError(`SQLite sidecar file must not be a symbolic link: ${sidecarPath}`)
+      }
+    } catch (error) {
+      if (!(error instanceof Error) || (error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error
+      }
+    }
   }
 }

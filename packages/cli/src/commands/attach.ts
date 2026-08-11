@@ -55,7 +55,7 @@ export async function attachDesktop(
   let proxy: HarnessProxy | null = null
   let child: ChildProcess | null = null
   let stopped = false
-  const previousHarnessAuthToken = process.env.HARNESS_AUTH_TOKEN
+  const previousHarnessIngestToken = process.env.HARNESS_INGEST_TOKEN
   const stop = async () => {
     if (stopped) {
       return
@@ -69,10 +69,10 @@ export async function attachDesktop(
     }
     store.endSession(sessionId)
     store.close()
-    if (previousHarnessAuthToken === undefined) {
-      delete process.env.HARNESS_AUTH_TOKEN
+    if (previousHarnessIngestToken === undefined) {
+      delete process.env.HARNESS_INGEST_TOKEN
     } else {
-      process.env.HARNESS_AUTH_TOKEN = previousHarnessAuthToken
+      process.env.HARNESS_INGEST_TOKEN = previousHarnessIngestToken
     }
   }
   const onSignal = (signal: NodeJS.Signals) => {
@@ -112,7 +112,7 @@ export async function attachDesktop(
         : {}),
       ...(boot.config.routing === undefined ? {} : { routing: boot.config.routing })
     })
-    process.env.HARNESS_AUTH_TOKEN = boot.authToken
+    process.env.HARNESS_INGEST_TOKEN = boot.ingestToken
     await proxy.start()
     proxyStarted = true
     const adapter = createCodexDesktopAdapter()

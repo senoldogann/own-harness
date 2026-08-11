@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs"
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { createRequire } from "node:module"
@@ -479,6 +479,16 @@ describe("core smoke", () => {
     expect(readFileSync(outsideFile, "utf8")).toBe("unchanged")
     rmSync(root, { recursive: true, force: true })
     rmSync(outside, { recursive: true, force: true })
+  })
+
+  it("rejects world-writable state directories", () => {
+    const root = mkdtempSync(join(tmpdir(), "own-harness-world-writable-"))
+    chmodSync(root, 0o777)
+    expect(() => new HarnessStore({ dbPath: join(root, "state.db") })).toThrow(
+      "State directory grants group/other write access"
+    )
+    chmodSync(root, 0o700)
+    rmSync(root, { recursive: true, force: true })
   })
 
   it.runIf(process.platform === "darwin")(

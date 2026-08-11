@@ -34,6 +34,7 @@ export interface BootstrapResult {
   readonly policyPath: string
   readonly telemetryPath: string
   readonly authToken: string
+  readonly ingestToken: string
   readonly serverAuthToken: string | undefined
   readonly distributionSignatureSecret: string | undefined
 }
@@ -61,7 +62,8 @@ export function bootstrap(cwd: string): BootstrapResult {
     throw new Error("Policy file not found in current directory")
   }
   const policy = parsePolicySource(policySource)
-  const authToken = loadOrCreateLocalAuthToken(harnessHome)
+  const authToken = loadOrCreateLocalAuthToken(harnessHome, "auth-token")
+  const ingestToken = loadOrCreateLocalAuthToken(harnessHome, "ingest-token")
   const serverAuthToken = resolveConfiguredSecret(
     config.server?.authTokenEnv,
     "server.authTokenEnv",
@@ -82,6 +84,7 @@ export function bootstrap(cwd: string): BootstrapResult {
     policyPath,
     telemetryPath,
     authToken,
+    ingestToken,
     serverAuthToken,
     distributionSignatureSecret
   }
@@ -135,20 +138,20 @@ function resolveHarnessHome(environment: SecretEnvironment): string {
   return resolvedHome
 }
 
-function loadOrCreateLocalAuthToken(harnessHome: string): string {
+function loadOrCreateLocalAuthToken(harnessHome: string, fileName: string): string {
   const realHarnessHome = resolveRealDirectoryRoot(harnessHome)
-  const existingToken = readPrivateUtf8FileWithinRealRoot(realHarnessHome, "auth-token")
+  const existingToken = readPrivateUtf8FileWithinRealRoot(realHarnessHome, fileName)
   if (existingToken !== null) {
     const token = existingToken.trim()
     if (!/^[a-f0-9]{64}$/.test(token)) {
-      throw new Error(`Invalid local management token in ${join(realHarnessHome, "auth-token")}`)
+      throw new Error(`Invalid local token in ${join(realHarnessHome, fileName)}`)
     }
     return token
   }
   const token = randomBytes(32).toString("hex")
   writeUtf8FileExclusivelyWithinRealRoot({
     rootPath: realHarnessHome,
-    relativePath: "auth-token",
+    relativePath: fileName,
     content: `${token}\n`,
     mode: 0o600
   })

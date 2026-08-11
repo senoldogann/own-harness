@@ -5,7 +5,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  realpathSync,
   rmSync,
   statSync,
   symlinkSync,
@@ -167,8 +166,8 @@ describe("project initialization security", () => {
       expect(() => bootstrap(root)).toThrow("HARNESS_HOME must be an absolute directory path")
       process.env.HARNESS_HOME = outside
       const boot = bootstrap(root)
-      expect(boot.storePath).toBe(join(realpathSync(outside), "state.db"))
-      expect(boot.telemetryPath).toBe(join(realpathSync(outside), "telemetry.json"))
+      expect(boot.storePath).toBe(join(outside, "state.db"))
+      expect(boot.telemetryPath).toBe(join(outside, "telemetry.json"))
     } finally {
       delete process.env.HARNESS_HOME
       rmSync(root, { recursive: true, force: true })

@@ -59,6 +59,7 @@ describe("policy pull", () => {
     })
     try {
       const proxyUrl = await proxy.start()
+      process.env.HARNESS_POLICY_SERVER_URL = proxyUrl.replace(/\/$/, "")
       writeTextFile(
         join(dir, "harness.config.yaml"),
         configWithDistribution(
@@ -95,6 +96,7 @@ describe("policy pull", () => {
       rmSync(outsidePolicyDir, { recursive: true, force: true })
     } finally {
       delete process.env.HARNESS_HOME
+      delete process.env.HARNESS_POLICY_SERVER_URL
       delete process.env[authTokenEnvironmentVariable]
       delete process.env[signatureSecretEnvironmentVariable]
       await proxy.stop()

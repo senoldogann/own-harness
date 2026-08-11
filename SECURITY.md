@@ -120,18 +120,23 @@ gates (`pnpm audit --prod --audit-level high` and the smoke test suite).
 
 ## Known limitations
 
-Tracked in the issue tracker with the `security` label:
+The release-readiness audit findings were resolved in the 1.0.x hardening
+pass:
 
-- The management token is exported to child agent processes
-  (`HARNESS_AUTH_TOKEN`); a separate ingest-only credential is planned
-  ([#1](https://github.com/senoldogann/own-harness/issues/1)).
-- `harness policy pull` sends the distribution auth token before signature
-  verification when running from an untrusted workspace config
-  ([#2](https://github.com/senoldogann/own-harness/issues/2)).
-- The SQLite database is opened twice with a post-open identity check, and
-  WAL sidecar files are not opened with `O_NOFOLLOW`
-  ([#3](https://github.com/senoldogann/own-harness/issues/3)).
-- Third-party GitHub Actions are referenced by mutable major tags; pinning to
-  commit SHAs is planned ([#4](https://github.com/senoldogann/own-harness/issues/4)).
-- State directories accept world-writable roots without ownership or mode
-  validation ([#5](https://github.com/senoldogann/own-harness/issues/5)).
+- Ingest routes accept a dedicated ingest-only credential
+  (`HARNESS_INGEST_TOKEN`); the full management token is no longer exported to
+  child agent processes.
+- `harness policy pull` refuses to send the distribution auth token unless the
+  server URL is pinned via `HARNESS_POLICY_SERVER_URL` (or `--token` is passed
+  explicitly).
+- SQLite WAL/SHM sidecars are rejected when they are symbolic links, and the
+  database identity is re-verified after opening.
+- Third-party GitHub Actions are pinned to commit SHAs with least-privilege
+  job permissions.
+- State directories are rejected when they are not owned by the current user
+  or grant group/other write access.
+
+Residual notes: desktop extension bundles are unsigned (standard VSIX/Cursor
+marketplace signing requires a publisher certificate, which is deferred), and
+operator-selected `HARNESS_HOME` paths should still point to a private
+directory.

@@ -2514,6 +2514,63 @@ describe("proxy fake provider", () => {
     store.close()
   })
 
+  it("accepts an ingest-only token for ingest and keeps management reads on the management token", async () => {
+    const store = new HarnessStore({ dbPath: join(tempDir, "ingest-scope.db") })
+    const pricing = createPricingCatalog({
+      version: 1,
+      proxy: { host: "127.0.0.1", port: 0 },
+      store: { home: "~/.own-harness", retentionDays: 90 },
+      telemetry: { enabled: false, optInFile: "~/.own-harness/telemetry.json" },
+      pricing: { defaultCurrency: "USD", models: [] }
+    })
+    const policy = parsePolicyConfig(JSON.stringify({
+      version: 1,
+      mode: "enforce",
+      defaultAction: "allow",
+      project: "*",
+      rules: []
+    }))
+    const managementToken = "mgmt-token-0123456789abcdef"
+    const ingestToken = "ingest-token-0123456789abcdef"
+    const proxy = createProxy({
+      host: "127.0.0.1",
+      port: 0,
+      upstreamAnthropic: fakeUrl,
+      upstreamOpenAi: fakeUrl,
+      store,
+      pricing,
+      policy,
+      sessionId: "session-1",
+      projectHash: "abc",
+      agent: "codex",
+      managementToken,
+      ingestToken
+    })
+    await proxy.start()
+    const base = `http://127.0.0.1:${proxyAddress(proxy)}`
+    const ingestWithIngestToken = await fetch(`${base}/api/v1/ingest`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${ingestToken}` },
+      body: JSON.stringify({ tool: "Bash", command: "git status" })
+    })
+    expect(ingestWithIngestToken.status).toBe(201)
+    const ingestWithManagementToken = await fetch(`${base}/api/v1/ingest`, {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${managementToken}` },
+      body: JSON.stringify({ tool: "Bash", command: "git status" })
+    })
+    expect(ingestWithManagementToken.status).toBe(401)
+    const readWithIngestToken = await fetch(`${base}/api/v1/requests`, {
+      headers: { authorization: `Bearer ${ingestToken}` }
+    })
+    expect(readWithIngestToken.status).toBe(401)
+    const readWithManagementToken = await fetch(`${base}/api/v1/requests`, {
+      headers: { authorization: `Bearer ${managementToken}` }
+    })
+    expect(readWithManagementToken.status).toBe(200)
+    await proxy.stop()
+  })
+
   it("translates chat completions to the Responses API without streaming", async () => {
     let translatedRequestBody: unknown
     const responsesProvider = Fastify()

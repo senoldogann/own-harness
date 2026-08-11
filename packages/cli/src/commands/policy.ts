@@ -38,6 +38,17 @@ export async function pullPolicy(
     )
   }
   const authToken = tokenOverride ?? boot.serverAuthToken
+  if (authToken !== undefined && tokenOverride === undefined) {
+    const pinnedServerUrl = process.env.HARNESS_POLICY_SERVER_URL
+    const normalizedServerUrl = serverUrl.replace(/\/$/, "")
+    if (pinnedServerUrl === undefined || pinnedServerUrl.replace(/\/$/, "") !== normalizedServerUrl) {
+      throw new Error(
+        "Refusing to send the server auth token before verification: distribution.serverUrl is not pinned. " +
+        `Set HARNESS_POLICY_SERVER_URL to exactly ${normalizedServerUrl} to authorize this pull, ` +
+        "or pass --token explicitly."
+      )
+    }
+  }
   const headers: Record<string, string> = {
     accept: "application/json"
   }

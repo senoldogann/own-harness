@@ -31,6 +31,7 @@ export interface ProxyOptions {
   readonly accountFingerprint?: string
   readonly authToken?: string
   readonly managementToken: string
+  readonly ingestToken?: string
   readonly policySignatureSecret?: string
   readonly translateChatToResponses?: boolean
   readonly routing?: RoutingConfig
@@ -58,6 +59,9 @@ export function createProxy(options: ProxyOptions): HarnessProxy {
   if (options.authToken !== undefined && (typeof options.authToken !== "string" || options.authToken.trim().length === 0)) {
     throw new Error("authToken must be a nonempty string when configured")
   }
+  if (options.ingestToken !== undefined && (typeof options.ingestToken !== "string" || options.ingestToken.trim().length === 0)) {
+    throw new Error("ingestToken must be a nonempty string when configured")
+  }
   const app = Fastify({ logger: false, bodyLimit: 20 * 1024 * 1024 })
   const rateLimit = options.rateLimit ?? { maxRequests: 600, windowMs: 60_000 }
   validatePositiveInteger(rateLimit.maxRequests, "rateLimit.maxRequests")
@@ -83,7 +87,7 @@ export function createProxy(options: ProxyOptions): HarnessProxy {
     const pathname = requestPathname(request.url)
     const routeClass = rateLimitRouteClass(pathname)
     const expectedToken = routeClass === "management"
-      ? options.managementToken
+      ? managementTokenForPath(options, pathname)
       : routeClass === "provider" && requireAuth
         ? options.authToken
         : undefined
@@ -231,4 +235,11 @@ function validatePositiveInteger(value: number, field: string): void {
 
 function isAbsoluteFormRequestTarget(url: string): boolean {
   return url.startsWith("http://") || url.startsWith("https://")
+}
+
+function managementTokenForPath(options: ProxyOptions, pathname: string): string {
+  if (pathname === "/api/v1/ingest" && options.ingestToken !== undefined) {
+    return options.ingestToken
+  }
+  return options.managementToken
 }

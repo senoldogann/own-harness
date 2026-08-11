@@ -50,7 +50,7 @@ export function createHarnessExtension(
 ): HarnessExtension {
   const reportTool = async (event: HarnessToolEvent): Promise<Response> => {
     const headers: Record<string, string> = { "content-type": "application/json" }
-    const authToken = process.env.HARNESS_AUTH_TOKEN
+    const authToken = process.env.HARNESS_INGEST_TOKEN ?? process.env.HARNESS_AUTH_TOKEN
     if (authToken !== undefined && authToken.length > 0) {
       headers.authorization = `Bearer ${authToken}`
     }

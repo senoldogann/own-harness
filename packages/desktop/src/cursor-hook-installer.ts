@@ -158,8 +158,9 @@ async function main() {
   const projectHash = process.env.HARNESS_PROJECT_HASH ?? createHash("sha256").update(cwd).digest("hex")
   const baseUrl = (process.env.HARNESS_INGEST_URL ?? "http://127.0.0.1:4103").replace(/\\/$/, "")
   const headers = { "content-type": "application/json" }
-  if (typeof process.env.HARNESS_AUTH_TOKEN === "string" && process.env.HARNESS_AUTH_TOKEN.length > 0) {
-    headers.authorization = \`Bearer \${process.env.HARNESS_AUTH_TOKEN}\`
+  const ingestToken = process.env.HARNESS_INGEST_TOKEN ?? process.env.HARNESS_AUTH_TOKEN
+  if (typeof ingestToken === "string" && ingestToken.length > 0) {
+    headers.authorization = \`Bearer \${ingestToken}\`
   }
   const response = await fetch(\`\${baseUrl}/api/v1/ingest\`, {
     method: "POST",

@@ -85,7 +85,7 @@ def post_ingest(
     duration_ms: int
 ) -> int:
     headers = {"content-type": "application/json"}
-    auth_token = os.environ.get("HARNESS_AUTH_TOKEN", "")
+    auth_token = os.environ.get("HARNESS_INGEST_TOKEN", os.environ.get("HARNESS_AUTH_TOKEN", ""))
     if auth_token:
         headers["authorization"] = f"Bearer {auth_token}"
     payload = {
