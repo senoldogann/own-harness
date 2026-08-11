@@ -12,7 +12,7 @@ if (typeof cliPackage.version !== "string" || cliPackage.version.length === 0) {
   throw new Error("packages/cli/package.json must contain a non-empty version")
 }
 const artifactNames = [
-  `own-harness-cli-${cliPackage.version}.tgz`,
+  `${cliPackage.name}-${cliPackage.version}.tgz`,
   "cursor-extension.vsix",
   "cursor-extension.zip",
   "vscode-extension.vsix",
