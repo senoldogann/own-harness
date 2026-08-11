@@ -54,7 +54,7 @@ export async function streamResponse(
   reply.raw.setHeader("content-type", contentType)
   reply.raw.writeHead(response.statusCode)
   try {
-    for await (const chunk of decodedStreamingBody(response, 16 * 1024 * 1024)) {
+    for await (const chunk of decodedStreamingBody(response, 16 * 1024 * 1024, () => clientClosed || reply.raw.destroyed || reply.raw.writableEnded)) {
       if (reply.raw.destroyed || reply.raw.writableEnded || clientClosed) {
         break
       }
@@ -201,11 +201,17 @@ function redactStreamingText(value: string, decision: PolicyDecision): string {
 
 async function* decodedStreamingBody(
   response: Awaited<ReturnType<typeof undiciRequest>>,
-  maxBytes: number
+  maxBytes: number,
+  shouldStop: () => boolean
 ): AsyncIterable<Uint8Array> {
   const encoding = headerValue(response.headers["content-encoding"])
   if (encoding === undefined || encoding === "identity") {
-    yield* response.body
+    for await (const chunk of response.body) {
+      if (shouldStop()) {
+        return
+      }
+      yield chunk
+    }
     return
   }
   if (encoding !== "gzip") {
@@ -216,6 +222,9 @@ async function* decodedStreamingBody(
   let totalBytes = 0
   try {
     for await (const chunk of decompressedBody) {
+      if (shouldStop()) {
+        return
+      }
       const buffer = Buffer.from(chunk)
       totalBytes += buffer.length
       if (totalBytes > maxBytes) {
