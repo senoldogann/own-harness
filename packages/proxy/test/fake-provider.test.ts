@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { mkdtempSync, rmSync } from "node:fs"
+import { request as httpRequest } from "node:http"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { gzipSync } from "node:zlib"
@@ -631,22 +632,24 @@ describe("proxy fake provider", () => {
       agent: "codex"
     })
     await proxy.start()
-    const cancelAfterFirstChunk = async (model: string): Promise<string> => {
-      const controller = new AbortController()
-      const response = await fetch(`http://127.0.0.1:${proxyAddress(proxy)}/v1/responses`, {
-        method: "POST",
-        headers: { "content-type": "application/json", accept: "text/event-stream" },
-        body: JSON.stringify({ model, stream: true }),
-        signal: controller.signal
+    const cancelAfterFirstChunk = (model: string): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const request = httpRequest({
+          host: "127.0.0.1",
+          port: proxyAddress(proxy),
+          path: "/v1/responses",
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "text/event-stream" }
+        }, (response) => {
+          response.once("data", (chunk) => {
+            response.destroy()
+            resolve(String(chunk))
+          })
+          response.once("error", reject)
+        })
+        request.once("error", reject)
+        request.end(JSON.stringify({ model, stream: true }))
       })
-      const reader = response.body?.getReader()
-      if (reader === undefined) {
-        throw new Error(`streaming response body is unavailable for model ${model}`)
-      }
-      const firstChunk = await reader.read()
-      controller.abort()
-      return new TextDecoder().decode(firstChunk.value)
-    }
     expect(await cancelAfterFirstChunk("gpt-completed")).toContain("response.completed")
     expect(await cancelAfterFirstChunk("gpt-incomplete")).toContain("response.output_text.delta")
     await new Promise<void>((resolve) => setTimeout(resolve, 50))
